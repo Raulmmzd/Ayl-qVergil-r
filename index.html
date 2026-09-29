@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aylıq vergi ödəyənlər</title>
+<style>
+:root{--bg:#eef2f0;--card:#fff;--ink:#1c2b27;--mute:#5f7069;--line:#d5ded9;--acc:#1d6b57;--acc2:#e6f2ee;--red:#b3392f}
+@media(prefers-color-scheme:dark){:root{--bg:#121a17;--card:#1a2420;--ink:#e6efeb;--mute:#93a59d;--line:#2c3a34;--acc:#4fb597;--acc2:#20342d;--red:#e57b70}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--ink);font:16px/1.5 Georgia,"Times New Roman",serif}
+.wrap{max-width:900px;margin:0 auto;padding:20px 14px 60px}
+h1{font-size:1.6rem;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 18px;font-family:system-ui,sans-serif;font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+label{display:block;font:600 .8rem system-ui,sans-serif;color:var(--mute);margin-bottom:4px}
+input{display:block;width:100%;min-width:0;max-width:100%;height:44px;-webkit-appearance:none;appearance:none;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:1rem system-ui,sans-serif}
+input:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.grid>*{min-width:0}
+.grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;align-items:end}
+@media(max-width:700px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.grid .full{grid-column:1/-1}.bar .m{min-width:0;width:100%}.bar>div{width:100%}.bar button{flex:1 1 100%}.tot b{font-size:1.2rem}}
+input[type=date],input[type=month]{text-align:left;line-height:1.2}
+input::-webkit-date-and-time-value{text-align:left;min-height:1.2em}
+button{min-height:44px}
+button{padding:10px 16px;border:0;border-radius:6px;background:var(--acc);color:#fff;font:600 .95rem system-ui,sans-serif;cursor:pointer}
+button.alt{background:var(--acc2);color:var(--acc);border:1px solid var(--line)}
+button.del{background:none;color:var(--red);padding:4px 8px;min-height:0}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:space-between}
+.bar .m{min-width:200px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-family:system-ui,sans-serif;font-size:.95rem}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mute);font-size:.8rem}
+td.n,th.n{text-align:right}
+td:nth-child(2){white-space:normal;min-width:130px}
+.empty{color:var(--mute);text-align:center;padding:22px;font-family:system-ui,sans-serif}
+.tot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:14px}
+.tot div{background:var(--acc2);border-radius:8px;padding:12px 14px;font-family:system-ui,sans-serif}
+.tot span{display:block;color:var(--mute);font-size:.8rem}
+.tot b{font:700 1.5rem Georgia,serif;color:var(--acc)}
+.note{color:var(--mute);font:.8rem system-ui,sans-serif;margin-top:6px}
+@media(max-width:700px){.bar .m{min-width:0;width:100%}.tot b{font-size:1.2rem}.card{padding:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Aylıq vergi ödəyənlər</h1>
+<p class="sub">Məlumatlar bu cihazın brauzerində saxlanılır. Ehtiyat üçün vaxtaşırı Excel-ə ixrac edin.</p>
+
+<div class="card bar">
+  <div class="m"><label for="month">Ay seçin</label><input type="month" id="month"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="alt" id="expM">Bu ayı Excel-ə çıxar</button>
+    <button class="alt" id="expA">Bütün ayları Excel-ə çıxar</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="grid">
+    <div class="full"><label for="fio">Soyad Ad Ata adı</label><input id="fio" autocomplete="off"></div>
+    <div><label for="dt">Ödəniş vaxtı</label><input type="date" id="dt"></div>
+    <div><label for="am">Məbləğ (₼)</label><input type="number" id="am" min="0" step="0.01" inputmode="decimal"></div>
+    <div class="full"><button id="add">Əlavə et</button></div>
+  </div>
+  <p class="note" id="err" style="color:var(--red)"></p>
+</div>
+
+<div class="card">
+  <div class="tw">
+    <table>
+      <thead><tr><th>№</th><th>Soyad Ad Ata adı</th><th>Ödəniş vaxtı</th><th class="n">Məbləğ</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="tot">
+    <div><span>Aylıq ümumi məbləğ</span><b id="sum">0.00</b> ₼</div>
+    <div><span>Ümumi məbləğin 5%-i</span><b id="pct">0.00</b> ₼</div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const KEY="vergi_odeyenler_v1";
+const AZ=["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqust","Sentyabr","Oktyabr","Noyabr","Dekabr"];
+const $=id=>document.getElementById(id);
+const SEED_KEY=KEY+"_seed_2026_09";
+const SEED=[["Məmmədova Güllü Mustafa","2026-09-21",20.0],["Mustafayev Təşkilat Həmzə","2026-09-22",7.14],["Əliyev Elnur Sədaqət","2026-09-22",27.1],["Bayramov Faiq Dağbəyi","2026-09-22",22.19],["Abbasova Qəmər Qərib","2026-09-22",25.26],["Bağırov Nurlan Tarix","2026-09-22",12.71],["Ağayev İlkin Ağayar","2026-09-22",24.4],["Quliyev Daşqın Əlövsət","2026-09-23",25.0],["Vəliyev Kamran Kəlam","2026-09-23",24.18],["Nuriyeva Vəfa Cəfər","2026-09-23",30.0],["Kərimov Şahin Cahangir","2026-09-22",8.07],["Məlikova İradə Eldar","2026-09-22",44.92],["Süleymanova Xətai Əlizaman","2026-09-22",37.94],["Əliyev Xıdır Zeynalabdin","2026-09-07",24.8],["Bəbirov Zaur Allahverdi","2026-09-24",42.0],["Əsgərov Anar Əhməd","2026-09-25",114.91],["Abdullayev Cəfər Nəbi","2026-09-25",20.0],["Quliyev Elşən Bahadur","2026-09-23",25.0],["Nərimanzadə Aqil İbrahim","2026-09-27",37.14],["Şərifov Rüstəm Bafa","2026-09-27",105.0],["Mustafayeva Rəşadə Təşkilat","2026-09-27",1.84],["Rzayeva Aytac Rizvan","2026-09-28",30.0],["Təhməzov Kamal İsrayıl","2026-09-28",52.39],["Əliyev Faiq Ağarəsul","2026-09-28",98.12],["Muradova İradə Qurban","2026-09-29",57.0],["Həsənov Sərdar Köçəri","2026-09-29",19.04],["Quliyeva Şəhla Müzəffər","2026-09-10",23.0],["Ələkbərov Nuru Cahangir","2026-09-04",147.0],["Abbasov Camal Məmməd","2026-09-07",27.1],["Məmmədova Rübaba Dadaşbala","2026-09-08",30.06],["Fərəcova Mehparə Ələsgər","2026-09-09",15.0],["Fərəcov Ceyhun Əmrəli","2026-09-09",15.0],["Əhədova İnkanət İbrahim","2026-09-09",12.66],["Məmmədzadə Nəzirə Möhübbət","2026-09-10",6.92],["Şavqatova Aygün Elşad","2026-09-05",63.83],["Həsrətli Lamiə Möhübbət","2026-09-08",66.74],["Seyidov Mirxəlil Mirhadı","2026-09-04",39.0],["Əbilov Aydın Nazim","2026-09-04",60.6],["Qasımov Nadir Musa","2026-09-08",54.46],["Məmmədov Səbuhi Rafiq","2026-09-04",59.29],["Rəhimov Elçin Yaqub","2026-09-03",97.0],["Bəşirov Elçin Əlixan","2026-09-02",5.06],["Bəşirov Mahir Alıxan","2026-09-09",24.5],["Mirzəyeva Zenfirə Nurəddin","2026-09-09",10.0],["Mərdanov Elçin Bəymirzə","2026-09-14",14.4],["Babayev Əkbər Rüstəm","2026-09-02",42.3],["Aslanov Fuad Məhərrəm","2026-09-09",14.63],["Həsənov Əlvan Binnət","2026-09-07",20.0],["Əliyev Faiq İltifat","2026-09-10",20.0],["Aşurov Yaqub Möhsün","2026-09-08",149.68],["Şıxaliyeva Nigar Natiq","2026-09-02",47.3],["Dadaşov Mehmet Mehdi","2026-09-02",48.24],["Rəhmanov Qurban Təbrik","2026-09-02",49.0],["Qasımov İlqar Tehran","2026-09-03",23.5],["Quluyeva Qəmzə Qədim","2026-09-07",68.0],["Əliyeva Səbinə Qərib","2026-09-14",42.19],["Muradova Günel Mehrəli","2026-09-14",100.0],["Əliyev Səbuhi Əfsər","2026-09-11",26.5],["Yusifov İlham İzafəddin","2026-09-15",47.94],["Ağamalıoğlu Aydın Bahadır","2026-09-15",137.8],["Cəfərov Samir Əlihüseyn","2026-09-16",21.5],["Xəlilov Sərdar Yunus","2026-09-17",78.09],["Bəbirov Rəşad Nəbi","2026-09-17",26.02],["Osmanova Gülnar Eldar","2026-09-18",56.54],["Quliyeva Nəzakət İbrahim","2026-09-17",12.64],["Ağayev Rəhman Fətulla","2026-09-18",27.26],["Quliyev Arzu Budaq","2026-09-19",28.17],["Mirzəyeva Ülkər Mirzə","2026-09-21",70.24]];
+let db={};
+try{db=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){db={}}
+try{if(!localStorage.getItem(SEED_KEY)){const m="2026-09";db[m]=(db[m]||[]).concat(SEED.map(r=>({fio:r[0],dt:r[1],am:r[2]})));localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(SEED_KEY,"1");localStorage.setItem(KEY+"_m",m)}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){$("err").textContent="Brauzer yaddaşa yazmağa icazə vermir."}};
+const fmt=n=>n.toLocaleString("az-AZ",{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const full=r=>r.fio||[r.sn,r.nm,r.fn].filter(Boolean).join(" ");
+const fdate=d=>d?d.split("-").reverse().join("."):"";
+const now=new Date();
+$("month").value=localStorage.getItem(KEY+"_m")||`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+
+function setDateLimits(){
+  const m=$("month").value; if(!m)return;
+  const [y,mo]=m.split("-").map(Number);
+  const last=new Date(y,mo,0).getDate();
+  $("dt").min=m+"-01"; $("dt").max=m+"-"+String(last).padStart(2,"0");
+  if($("dt").value && $("dt").value.slice(0,7)!==m) $("dt").value="";
+}
+function render(){
+  const m=$("month").value; setDateLimits();
+  try{localStorage.setItem(KEY+"_m",m)}catch(e){}
+  const list=db[m]||[];
+  $("rows").innerHTML=list.length?list.map((r,i)=>
+    `<tr><td>${i+1}</td><td>${esc(full(r))}</td><td>${fdate(r.dt)}</td><td class="n">${fmt(r.am)}</td><td><button class="del" data-i="${i}" aria-label="Sil">Sil</button></td></tr>`).join("")
+    :`<tr><td colspan="7" class="empty">Bu ay üçün qeyd yoxdur. Yuxarıdakı formadan əlavə edin.</td></tr>`;
+  const s=list.reduce((a,r)=>a+r.am,0);
+  $("sum").textContent=fmt(s); $("pct").textContent=fmt(s*0.05);
+}
+$("month").addEventListener("change",render);
+$("add").addEventListener("click",()=>{
+  const m=$("month").value, fio=$("fio").value.trim().replace(/\s+/g," "), dt=$("dt").value, am=parseFloat($("am").value);
+  if(!m){$("err").textContent="Əvvəlcə ay seçin.";return}
+  if(!fio||!dt||isNaN(am)){$("err").textContent="Soyad Ad Ata adı, tarix və məbləği doldurun.";return}
+  $("err").textContent="";
+  (db[m]=db[m]||[]).push({fio,dt,am});
+  save(); ["fio","am"].forEach(i=>$(i).value=""); render(); $("fio").focus();
+});
+$("rows").addEventListener("click",e=>{
+  const b=e.target.closest(".del"); if(!b)return;
+  const m=$("month").value, r=db[m][b.dataset.i];
+  if(confirm(`${full(r)} qeydi silinsin?`)){db[m].splice(b.dataset.i,1);save();render()}
+});
+["fio","dt","am"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")$("add").click()}));
+
+function sheetFor(m){
+  const list=db[m]||[], s=list.reduce((a,r)=>a+r.am,0);
+  const rows=[["№","Soyad Ad Ata adı","Ödəniş vaxtı","Məbləğ (₼)"]];
+  list.forEach((r,i)=>rows.push([i+1,full(r),fdate(r.dt),r.am]));
+  rows.push([],["","","Ümumi məbləğ",Math.round(s*100)/100],["","","5%",Math.round(s*5)/100]);
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"]=[{wch:5},{wch:40},{wch:16},{wch:14}];
+  return ws;
+}
+const title=m=>{const [y,mo]=m.split("-");return `${AZ[mo-1]} ${y}`};
+function exp(all){
+  if(typeof XLSX==="undefined"){alert("Excel kitabxanası yüklənmədi. İnternet bağlantısını yoxlayın.");return}
+  const wb=XLSX.utils.book_new();
+  const months=all?Object.keys(db).filter(k=>db[k].length).sort():[$("month").value];
+  if(!months.length){alert("İxrac üçün qeyd yoxdur.");return}
+  months.forEach(m=>XLSX.utils.book_append_sheet(wb,sheetFor(m),title(m)));
+  XLSX.writeFile(wb,all?"vergi_butun_aylar.xlsx":`vergi_${months[0]}.xlsx`);
+}
+$("expM").addEventListener("click",()=>exp(false));
+$("expA").addEventListener("click",()=>exp(true));
+render();
+</script>
+</body>
+</html>
