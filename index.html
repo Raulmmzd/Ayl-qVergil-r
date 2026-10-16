@@ -41,6 +41,14 @@ td:nth-child(2){white-space:normal;min-width:130px}
 .tot b{font:700 1.5rem Georgia,serif;color:var(--acc)}
 .note{color:var(--mute);font:.8rem system-ui,sans-serif;margin-top:6px}
 @media(max-width:700px){.bar .m{min-width:0;width:100%}.tot b{font-size:1.2rem}.card{padding:12px}}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.ov[hidden]{display:none}
+.box{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:18px;max-width:420px;width:100%;max-height:85vh;overflow:auto}
+.box h2{font-size:1.1rem;margin:0 0 10px}
+#dupL{font-family:system-ui,sans-serif;font-size:.9rem}
+#dupL div{padding:8px 0;border-bottom:1px solid var(--line)}
+.acts{display:flex;gap:8px;margin-top:14px}
+.acts button{flex:1}
 </style>
 </head>
 <body>
@@ -80,16 +88,21 @@ td:nth-child(2){white-space:normal;min-width:130px}
 </div>
 </div>
 
+<div id="dup" class="ov" hidden>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="dupT">
+    <h2 id="dupT">Bu ad artıq qeyd olunub</h2>
+    <div id="dupL"></div>
+    <div class="acts"><button class="alt" id="dupNo">Ləğv et</button><button id="dupYes">Yenə də əlavə et</button></div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const KEY="vergi_odeyenler_v1";
 const AZ=["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqust","Sentyabr","Oktyabr","Noyabr","Dekabr"];
 const $=id=>document.getElementById(id);
-const SEED_KEY=KEY+"_seed_2026_09";
-const SEED=[["Məmmədova Güllü Mustafa","2026-09-21",20.0],["Mustafayev Təşkilat Həmzə","2026-09-22",7.14],["Əliyev Elnur Sədaqət","2026-09-22",27.1],["Bayramov Faiq Dağbəyi","2026-09-22",22.19],["Abbasova Qəmər Qərib","2026-09-22",25.26],["Bağırov Nurlan Tarix","2026-09-22",12.71],["Ağayev İlkin Ağayar","2026-09-22",24.4],["Quliyev Daşqın Əlövsət","2026-09-23",25.0],["Vəliyev Kamran Kəlam","2026-09-23",24.18],["Nuriyeva Vəfa Cəfər","2026-09-23",30.0],["Kərimov Şahin Cahangir","2026-09-22",8.07],["Məlikova İradə Eldar","2026-09-22",44.92],["Süleymanova Xətai Əlizaman","2026-09-22",37.94],["Əliyev Xıdır Zeynalabdin","2026-09-07",24.8],["Bəbirov Zaur Allahverdi","2026-09-24",42.0],["Əsgərov Anar Əhməd","2026-09-25",114.91],["Abdullayev Cəfər Nəbi","2026-09-25",20.0],["Quliyev Elşən Bahadur","2026-09-23",25.0],["Nərimanzadə Aqil İbrahim","2026-09-27",37.14],["Şərifov Rüstəm Bafa","2026-09-27",105.0],["Mustafayeva Rəşadə Təşkilat","2026-09-27",1.84],["Rzayeva Aytac Rizvan","2026-09-28",30.0],["Təhməzov Kamal İsrayıl","2026-09-28",52.39],["Əliyev Faiq Ağarəsul","2026-09-28",98.12],["Muradova İradə Qurban","2026-09-29",57.0],["Həsənov Sərdar Köçəri","2026-09-29",19.04],["Quliyeva Şəhla Müzəffər","2026-09-10",23.0],["Ələkbərov Nuru Cahangir","2026-09-04",147.0],["Abbasov Camal Məmməd","2026-09-07",27.1],["Məmmədova Rübaba Dadaşbala","2026-09-08",30.06],["Fərəcova Mehparə Ələsgər","2026-09-09",15.0],["Fərəcov Ceyhun Əmrəli","2026-09-09",15.0],["Əhədova İnkanət İbrahim","2026-09-09",12.66],["Məmmədzadə Nəzirə Möhübbət","2026-09-10",6.92],["Şavqatova Aygün Elşad","2026-09-05",63.83],["Həsrətli Lamiə Möhübbət","2026-09-08",66.74],["Seyidov Mirxəlil Mirhadı","2026-09-04",39.0],["Əbilov Aydın Nazim","2026-09-04",60.6],["Qasımov Nadir Musa","2026-09-08",54.46],["Məmmədov Səbuhi Rafiq","2026-09-04",59.29],["Rəhimov Elçin Yaqub","2026-09-03",97.0],["Bəşirov Elçin Əlixan","2026-09-02",5.06],["Bəşirov Mahir Alıxan","2026-09-09",24.5],["Mirzəyeva Zenfirə Nurəddin","2026-09-09",10.0],["Mərdanov Elçin Bəymirzə","2026-09-14",14.4],["Babayev Əkbər Rüstəm","2026-09-02",42.3],["Aslanov Fuad Məhərrəm","2026-09-09",14.63],["Həsənov Əlvan Binnət","2026-09-07",20.0],["Əliyev Faiq İltifat","2026-09-10",20.0],["Aşurov Yaqub Möhsün","2026-09-08",149.68],["Şıxaliyeva Nigar Natiq","2026-09-02",47.3],["Dadaşov Mehmet Mehdi","2026-09-02",48.24],["Rəhmanov Qurban Təbrik","2026-09-02",49.0],["Qasımov İlqar Tehran","2026-09-03",23.5],["Quluyeva Qəmzə Qədim","2026-09-07",68.0],["Əliyeva Səbinə Qərib","2026-09-14",42.19],["Muradova Günel Mehrəli","2026-09-14",100.0],["Əliyev Səbuhi Əfsər","2026-09-11",26.5],["Yusifov İlham İzafəddin","2026-09-15",47.94],["Ağamalıoğlu Aydın Bahadır","2026-09-15",137.8],["Cəfərov Samir Əlihüseyn","2026-09-16",21.5],["Xəlilov Sərdar Yunus","2026-09-17",78.09],["Bəbirov Rəşad Nəbi","2026-09-17",26.02],["Osmanova Gülnar Eldar","2026-09-18",56.54],["Quliyeva Nəzakət İbrahim","2026-09-17",12.64],["Ağayev Rəhman Fətulla","2026-09-18",27.26],["Quliyev Arzu Budaq","2026-09-19",28.17],["Mirzəyeva Ülkər Mirzə","2026-09-21",70.24]];
 let db={};
 try{db=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){db={}}
-try{if(!localStorage.getItem(SEED_KEY)){const m="2026-09";db[m]=(db[m]||[]).concat(SEED.map(r=>({fio:r[0],dt:r[1],am:r[2]})));localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(SEED_KEY,"1");localStorage.setItem(KEY+"_m",m)}}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){$("err").textContent="Brauzer yaddaşa yazmağa icazə vermir."}};
 const fmt=n=>n.toLocaleString("az-AZ",{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -116,13 +129,35 @@ function render(){
   $("sum").textContent=fmt(s); $("pct").textContent=fmt(s*0.05);
 }
 $("month").addEventListener("change",render);
+const fold=s=>s.toLocaleLowerCase("az").replace(/\u0307/g,"").replace(/[əǝ]/g,"e").replace(/ı/g,"i").replace(/ö/g,"o").replace(/ü/g,"u").replace(/ç/g,"c").replace(/ş/g,"s").replace(/ğ/g,"g").replace(/\s+/g," ").trim();
+function findDup(fio){
+  const k=fold(fio), out=[];
+  Object.keys(db).sort().forEach(m=>(db[m]||[]).forEach(r=>{if(fold(full(r))===k)out.push({m,r})}));
+  return out;
+}
+function addRec(m,fio,dt,am){
+  (db[m]=db[m]||[]).push({fio,dt,am});
+  save(); ["fio","am"].forEach(i=>$(i).value=""); render(); $("fio").focus();
+}
+let pend=null;
+function closeDup(){$("dup").hidden=true;pend=null}
+function showDup(d,p){
+  pend=p;
+  const sh=d.slice(0,5).map(x=>`<div><b>${esc(full(x.r))}</b><br>${title(x.m)} · ${fdate(x.r.dt)} · ${fmt(x.r.am)} ₼</div>`).join("");
+  $("dupL").innerHTML=`<p style="margin:0 0 8px">Daxil etdiyiniz ad əvvəl də qeyd olunub (${d.length} dəfə):</p>${sh}${d.length>5?`<div>... və daha ${d.length-5} qeyd</div>`:""}`;
+  $("dup").hidden=false;
+}
+$("dupNo").addEventListener("click",closeDup);
+$("dupYes").addEventListener("click",()=>{if(pend){const p=pend;closeDup();addRec(p.m,p.fio,p.dt,p.am)}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("dup").hidden)closeDup()});
 $("add").addEventListener("click",()=>{
   const m=$("month").value, fio=$("fio").value.trim().replace(/\s+/g," "), dt=$("dt").value, am=parseFloat($("am").value);
   if(!m){$("err").textContent="Əvvəlcə ay seçin.";return}
   if(!fio||!dt||isNaN(am)){$("err").textContent="Soyad Ad Ata adı, tarix və məbləği doldurun.";return}
   $("err").textContent="";
-  (db[m]=db[m]||[]).push({fio,dt,am});
-  save(); ["fio","am"].forEach(i=>$(i).value=""); render(); $("fio").focus();
+  const d=findDup(fio);
+  if(d.length){showDup(d,{m,fio,dt,am});return}
+  addRec(m,fio,dt,am);
 });
 $("rows").addEventListener("click",e=>{
   const b=e.target.closest(".del"); if(!b)return;
